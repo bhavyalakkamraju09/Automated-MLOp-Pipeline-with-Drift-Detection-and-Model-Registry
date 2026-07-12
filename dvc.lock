@@ -1,0 +1,95 @@
+schema: '2.0'
+stages:
+  ingest:
+    cmd: python src/data/ingest.py
+    deps:
+    - path: src/data/ingest.py
+      hash: md5
+      md5: 9c9d78c543b23f84618f6a84995016a8
+      size: 1621
+    outs:
+    - path: data/raw/telco_churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+      isexec: true
+  validate:
+    cmd: python src/data/validate.py
+    deps:
+    - path: data/raw/telco_churn.csv
+      hash: md5
+      md5: 3b0bfab28a8101b4e4fdd08025a5c235
+      size: 970457
+    - path: src/data/validate.py
+      hash: md5
+      md5: ec70b3c9b79079bc45e5a7300f32d9a3
+      size: 1837
+    outs:
+    - path: data/processed/validated.parquet
+      hash: md5
+      md5: a18f7b041d8c795189744c9bdc2d04ed
+      size: 204260
+      isexec: true
+  featurize:
+    cmd: python src/data/features.py
+    deps:
+    - path: data/processed/validated.parquet
+      hash: md5
+      md5: a18f7b041d8c795189744c9bdc2d04ed
+      size: 204260
+    - path: src/data/features.py
+      hash: md5
+      md5: 1eccf56aacc50d9da75f41da82dd4480
+      size: 3053
+    params:
+      params.yaml:
+        featurize.random_state: 42
+        featurize.test_size: 0.2
+    outs:
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 00cfae6d9444d9372a8ec014e9d0d166
+      size: 38042
+      isexec: true
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 3d9d1368ca6748de7921c9006a5420d0
+      size: 101379
+      isexec: true
+    - path: models/preprocessor.pkl
+      hash: md5
+      md5: a4cd56cdddf076877ef756b95d6a67c6
+      size: 2775
+      isexec: true
+  train:
+    cmd: python src/training/train.py
+    deps:
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 00cfae6d9444d9372a8ec014e9d0d166
+      size: 38042
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 3d9d1368ca6748de7921c9006a5420d0
+      size: 101379
+    - path: src/training/train.py
+      hash: md5
+      md5: 925f2bf11ecead6a0c8d7266c9ad7e84
+      size: 3434
+    params:
+      params.yaml:
+        train.learning_rate: 0.05
+        train.max_depth: 6
+        train.n_estimators: 300
+        train.scale_pos_weight: 3.0
+    outs:
+    - path: metrics/eval.json
+      hash: md5
+      md5: 3e6a598f3818b21bbf47398da71f241d
+      size: 95
+      isexec: true
+    - path: models/churn_model.pkl
+      hash: md5
+      md5: ffaaabb249971b524a2a23764edc2e9e
+      size: 1024595
+      isexec: true
