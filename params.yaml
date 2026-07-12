@@ -1,0 +1,19 @@
+featurize:
+  test_size: 0.2
+  random_state: 42
+  val_size: 0.1
+train:
+  max_depth: 4
+  learning_rate: 0.012704652641927614
+  n_estimators: 475
+  subsample: 0.8757975041256286
+  colsample_bytree: 0.636620895780968
+  scale_pos_weight: 2.456805456420474
+  early_stopping_rounds: 30
+  eval_metric: auc
+  random_state: 42
+monitoring:
+  psi_threshold: 0.2
+  psi_critical: 0.25
+  min_samples_for_drift: 100
+  drift_check_hours: 24

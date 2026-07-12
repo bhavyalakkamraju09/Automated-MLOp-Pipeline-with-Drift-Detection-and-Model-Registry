@@ -78,18 +78,18 @@ stages:
       size: 3434
     params:
       params.yaml:
-        train.learning_rate: 0.05
-        train.max_depth: 6
-        train.n_estimators: 300
-        train.scale_pos_weight: 3.0
+        train.learning_rate: 0.012704652641927614
+        train.max_depth: 4
+        train.n_estimators: 475
+        train.scale_pos_weight: 2.456805456420474
     outs:
     - path: metrics/eval.json
       hash: md5
-      md5: 3e6a598f3818b21bbf47398da71f241d
+      md5: 509dd5f4826d89e22a76bcfb92318f0f
       size: 95
       isexec: true
     - path: models/churn_model.pkl
       hash: md5
-      md5: ffaaabb249971b524a2a23764edc2e9e
-      size: 1024595
+      md5: cfe99ea2c2c91662db758187e71d0cee
+      size: 788061
       isexec: true
