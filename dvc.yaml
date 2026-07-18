@@ -1,0 +1,48 @@
+# dvc.yaml — defines the reproducible ML pipeline
+stages:
+  ingest:
+    cmd: python src/data/ingest.py
+    deps:
+      - src/data/ingest.py
+    outs:
+      - data/raw/telco_churn.csv
+
+  validate:
+    cmd: python src/data/validate.py
+    deps:
+      - src/data/validate.py
+      - data/raw/telco_churn.csv
+    outs:
+      - data/processed/validated.parquet
+
+  featurize:
+    cmd: python src/data/features.py
+    deps:
+      - src/data/features.py
+      - data/processed/validated.parquet
+    params:
+      - params.yaml:
+          - featurize.test_size
+          - featurize.random_state
+    outs:
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+      - models/preprocessor.pkl
+
+  train:
+    cmd: python src/training/train.py
+    deps:
+      - src/training/train.py
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+    params:
+      - params.yaml:
+          - train.max_depth
+          - train.learning_rate
+          - train.n_estimators
+          - train.scale_pos_weight
+    outs:
+      - models/churn_model.pkl
+    metrics:
+      - metrics/eval.json:
+          cache: false

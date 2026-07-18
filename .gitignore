@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+data/raw/*.csv
+data/processed/*.parquet
+models/*.pkl
+mlruns/
+mlartifacts/
+.dvc/cache/
+monitoring/reports/*.html
+*.log
+.DS_Store

@@ -1,0 +1,23 @@
+groups:
+  - name: model_alerts
+    rules:
+      - alert: HighPredictionLatency
+        expr: histogram_quantile(0.99, prediction_latency_seconds_bucket) > 0.5
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: 'p99 prediction latency > 500ms for 5 minutes'
+
+      - alert: HighChurnRate
+        expr: churn_rate_rolling > 0.40
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Rolling churn prediction rate > 40% (possible drift)'
+
+      - alert: ModelDown
+        expr: up{job="churn_model"} == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Churn model serving is down'
