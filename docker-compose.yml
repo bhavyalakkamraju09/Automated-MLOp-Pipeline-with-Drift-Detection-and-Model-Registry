@@ -1,7 +1,6 @@
 version: "3.8"
 
 x-airflow-common: &airflow-common
-  platform: linux/amd64
   build:
     context: .
     dockerfile: Dockerfile.airflow
@@ -23,13 +22,13 @@ x-airflow-common: &airflow-common
     - ./params.yaml:/opt/airflow/params.yaml
     - ./dvc.yaml:/opt/airflow/dvc.yaml
     - airflow-logs:/opt/airflow/logs
+    - mlflow-data:/mlflow
   depends_on:
     - postgres
 
 services:
   postgres:
     image: postgres:15
-    platform: linux/amd64
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -91,6 +90,9 @@ services:
       MODEL_NAME: churn_xgboost
     depends_on:
       - mlflow
+    volumes:
+      - mlflow-data:/mlflow
+      - ./models:/app/models
 
   prometheus:
     image: prom/prometheus:v2.51.0

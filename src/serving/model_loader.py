@@ -1,10 +1,3 @@
-"""Load the current Production-stage model from the MLflow registry.
-
-Falls back to the Staging version if Production is unavailable or fails
-a basic sanity check, and falls back to a local pickle (models/churn_model.pkl)
-if MLflow itself is unreachable — so `uvicorn src.serving.app:app` still
-boots for local dev without the full Docker Compose stack running.
-"""
 import os
 import pickle
 
@@ -16,10 +9,14 @@ LOCAL_FALLBACK_PATH = "models/churn_model.pkl"
 def _load_stage(client, stage: str):
     import mlflow
 
-    versions = client.get_latest_versions(MODEL_NAME, stages=[stage])
-    if not versions:
+    # NOTE: get_latest_versions(stages=[...]) is deprecated and unreliable
+    # against this MLflow server version — it can return empty even when
+    # search_model_versions confirms a version is in that exact stage.
+    all_versions = client.search_model_versions(f"name='{MODEL_NAME}'")
+    matching = [v for v in all_versions if v.current_stage == stage]
+    if not matching:
         return None, None
-    version = versions[0]
+    version = max(matching, key=lambda v: int(v.version))
     model_uri = f"models:/{MODEL_NAME}/{stage}"
     model = mlflow.xgboost.load_model(model_uri)
     info = {"version": version.version, "run_id": version.run_id, "stage": stage}
